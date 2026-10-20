@@ -6,27 +6,15 @@ package com.mycompany.windowmanager;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
 
+
+
 public class OffersWindow extends WindowManager {
 
-    // Représente une offre d'emploi
-    private static class Offer {
-        int id;
-        int remuneration;
-        String titre;
-        String offre;
-
-        public Offer(int id, int remuneration,
-                     String titre, String offre) {
-            this.id = id;
-            this.remuneration = remuneration;
-            this.titre = titre;
-            this.offre = offre;
-        }
-    }
 
     public OffersWindow() {
         super("JobBoard - Offres d'emploi", 800, 600);
@@ -80,20 +68,22 @@ public class OffersWindow extends WindowManager {
 
         offers.add(new Offer(
             1,
-            32000,
+            new BigDecimal(32000),
             "Développeur Java Junior",
             "Nous recherchons un développeur Java "
             + "pour rejoindre notre équipe et participer "
-            + "au développement de nos applications."
+            + "au développement de nos applications.",
+            1
         ));
 
         offers.add(new Offer(
             2,
-            28000,
+            new BigDecimal(28000),
             "Technicien informatique",
             "Assurer la maintenance du parc informatique, "
             + "assister les utilisateurs et participer "
-            + "à la gestion des systèmes."
+            + "à la gestion des systèmes.",
+            2
         ));
 
         // Affichage des offres
@@ -181,3 +171,5 @@ public class OffersWindow extends WindowManager {
         return card;
     }
 }
+
+

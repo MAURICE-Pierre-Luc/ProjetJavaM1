@@ -6,6 +6,8 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ConDB {
     
@@ -83,8 +85,10 @@ public class ConDB {
     }
     
 // Recuperation depuis la base de donne
-    public void getOffers() throws SQLException {
+    public List<Offer> getOffers() throws SQLException {
 
+        List<Offer> offres = new ArrayList<>();
+        
         String sql = "SELECT id, title, description, pay, owner_id FROM offer";
 
         try (Connection connexion = getConnection();
@@ -95,12 +99,16 @@ public class ConDB {
                 int id = resultat.getInt("id");
                 String title = resultat.getString("title");
                 String description = resultat.getString("description");
-                int pay = resultat.getInt("pay");
+                BigDecimal pay = resultat.getBigDecimal("pay");
                 int ownerId = resultat.getInt("owner_id");
 
-                // Renvoi des donnes a faire
+                Offer offre = new Offer(id, pay, title, description, ownerId );
+
+                offres.add(offre);
+                
             }
         }   
+        return offres;
     }
     public String getPassword(String userName) throws SQLException {
 
