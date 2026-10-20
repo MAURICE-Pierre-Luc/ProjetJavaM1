@@ -4,19 +4,8 @@
  */
 package com.mycompany.windowmanager;
 
-import java.awt.BorderLayout;
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.Font;
-import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.JButton;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.SwingUtilities;
-
+import javax.swing.*;
+import java.awt.*;
 /**
  *
  * @author katuro
@@ -86,33 +75,191 @@ public class HomeWindow extends WindowManager {
     }
 }
 
+
+
+
+
 class LoginWindow extends WindowManager {
 
+    // Identifiants de test
+    private static final String TEST_USERNAME = "admin";
+    private static final String TEST_PASSWORD = "1234";
+
+    private JTextField usernameField;
+    private JPasswordField passwordField;
+
     public LoginWindow() {
-        super("JobBoard - Connexion", 400, 200);
+        super("JobBoard - Connexion", 400, 250);
 
-        setMainPanel(new JPanel(new FlowLayout()));
+        JPanel panel = new JPanel(new GridBagLayout());
+        panel.setBorder(
+            BorderFactory.createEmptyBorder(20, 30, 20, 30)
+        );
 
-        addLabel("Fenêtre de connexion");
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(8, 5, 8, 5);
+        gbc.fill = GridBagConstraints.HORIZONTAL;
 
-        addButton("Retour à l'accueil", e -> {
+        // Titre
+        JLabel title = new JLabel("Connexion");
+        title.setFont(new Font("Arial", Font.BOLD, 22));
+
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.gridwidth = 2;
+        panel.add(title, gbc);
+
+        // Identifiant
+        gbc.gridwidth = 1;
+        gbc.gridy = 1;
+        gbc.gridx = 0;
+        panel.add(new JLabel("Identifiant :"), gbc);
+
+        usernameField = new JTextField(15);
+
+        gbc.gridx = 1;
+        panel.add(usernameField, gbc);
+
+        // Mot de passe
+        gbc.gridy = 2;
+        gbc.gridx = 0;
+        panel.add(new JLabel("Mot de passe :"), gbc);
+
+        passwordField = new JPasswordField(15);
+
+        gbc.gridx = 1;
+        panel.add(passwordField, gbc);
+
+        // Boutons
+        JPanel buttons = new JPanel(new FlowLayout());
+
+        JButton loginButton = new JButton("Se connecter");
+        JButton backButton = new JButton("Retour");
+
+        buttons.add(loginButton);
+        buttons.add(backButton);
+
+        gbc.gridx = 0;
+        gbc.gridy = 3;
+        gbc.gridwidth = 2;
+        panel.add(buttons, gbc);
+
+        setMainPanel(panel);
+
+        // Vérification des identifiants
+        loginButton.addActionListener(e -> {
+            String username = usernameField.getText().trim();
+            String password = new String(
+                passwordField.getPassword()
+            );
+
+            if (username.equals(TEST_USERNAME)
+                    && password.equals(TEST_PASSWORD)) {
+
+                new OffersWindow().showWindow();
+                closeWindow();
+
+            } else {
+                JOptionPane.showMessageDialog(
+                    this,
+                    "Identifiant ou mot de passe incorrect.",
+                    "Erreur de connexion",
+                    JOptionPane.ERROR_MESSAGE
+                );
+            }
+
+        });
+
+        // Retour à l'accueil
+        backButton.addActionListener(e -> {
             new HomeWindow().showWindow();
             closeWindow();
         });
+
+        getRootPane().setDefaultButton(loginButton);
     }
 }
 
 
 class RegisterWindow extends WindowManager {
 
+    private JTextField nameField;
+    private JTextField usernameField;
+    private JPasswordField passwordField;
+    private JPasswordField confirmPasswordField;
+
     public RegisterWindow() {
-        super("JobBoard - Inscription", 400, 200);
+        super("JobBoard - Inscription", 450, 350);
 
-        setMainPanel(new JPanel(new FlowLayout()));
+        JPanel panel = new JPanel(new GridBagLayout());
+        panel.setBorder(
+            BorderFactory.createEmptyBorder(20, 30, 20, 30)
+        );
 
-        addLabel("Fenêtre de création de compte");
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(6, 5, 6, 5);
+        gbc.fill = GridBagConstraints.HORIZONTAL;
 
-        addButton("Retour à l'accueil", e -> {
+        // Titre
+        JLabel title = new JLabel("Créer un compte");
+        title.setFont(new Font("Arial", Font.BOLD, 22));
+
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.gridwidth = 2;
+        panel.add(title, gbc);
+
+        gbc.gridwidth = 1;
+
+        // Nom
+        gbc.gridy = 1;
+        gbc.gridx = 0;
+        panel.add(new JLabel("Nom :"), gbc);
+
+        nameField = new JTextField(15);
+
+        gbc.gridx = 1;
+        panel.add(nameField, gbc);
+
+        // Mot de passe
+        gbc.gridy = 2;
+        gbc.gridx = 0;
+        panel.add(new JLabel("Mot de passe :"), gbc);
+
+        passwordField = new JPasswordField(15);
+
+        gbc.gridx = 1;
+        panel.add(passwordField, gbc);
+
+        // Confirmation
+        gbc.gridy = 3;
+        gbc.gridx = 0;
+        panel.add(new JLabel("Confirmer :"), gbc);
+
+        confirmPasswordField = new JPasswordField(15);
+
+        gbc.gridx = 1;
+        panel.add(confirmPasswordField, gbc);
+
+        // Boutons
+        JPanel buttons = new JPanel(new FlowLayout());
+
+        JButton registerButton = new JButton("Créer mon compte");
+        JButton backButton = new JButton("Retour");
+
+        buttons.add(registerButton);
+        buttons.add(backButton);
+
+        gbc.gridx = 0;
+        gbc.gridy = 5;
+        gbc.gridwidth = 2;
+        panel.add(buttons, gbc);
+
+        setMainPanel(panel);
+
+        // Le bouton d'inscription ne fait rien pour le moment.
+
+        backButton.addActionListener(e -> {
             new HomeWindow().showWindow();
             closeWindow();
         });
