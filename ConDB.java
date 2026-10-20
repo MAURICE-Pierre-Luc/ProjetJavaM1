@@ -129,7 +129,38 @@ public class ConDB {
             }
         }
     }
-    
+    public List<Offer> searchOfferTitle(String titleContains) throws SQLException {
+
+        List<Offer> offres = new ArrayList<>();
+
+        String sql = """
+            SELECT id, title, description, pay, owner_id
+            FROM offer
+            WHERE title LIKE ?
+            """;
+
+        try (Connection connexion = getConnection();
+             PreparedStatement requete = connexion.prepareStatement(sql)) {
+
+            requete.setString(1, "%" + titleContains + "%");
+
+            try (ResultSet resultat = requete.executeQuery()) {
+                while (resultat.next()) {
+                    Offer offre = new Offer(
+                        resultat.getInt("id"),
+                        resultat.getBigDecimal("pay"),
+                        resultat.getString("title"),
+                        resultat.getString("description"),
+                        resultat.getInt("owner_id")
+                    );
+
+                    offres.add(offre);
+                }
+            }
+        }
+
+        return offres;
+    }
 
 // Met a jour une offre de la base de donne
     public void updateOffer( int id, String title, String description, BigDecimal pay) throws SQLException {
