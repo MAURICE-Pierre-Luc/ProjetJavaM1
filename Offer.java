@@ -10,8 +10,7 @@ public class Offer {
     String offre;
     int ownerId;
 
-    public Offer(int id, BigDecimal remuneration,
-                 String titre, String offre, int ownerId) {
+    public Offer(int id, BigDecimal remuneration, String titre, String offre, int ownerId) {
         this.id = id;
         this.remuneration = remuneration;
         this.titre = titre;
