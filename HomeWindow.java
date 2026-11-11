@@ -149,9 +149,7 @@ class LoginWindow extends WindowManager {
         // Vérification des identifiants
         loginButton.addActionListener(e -> {
             String username = usernameField.getText().trim();
-            String password = new String(
-                passwordField.getPassword()
-            );
+            String password = new String(passwordField.getPassword());
             
             try{
                 String userPassword = con.getPassword(username);
@@ -162,12 +160,7 @@ class LoginWindow extends WindowManager {
                     closeWindow();
 
                 } else {
-                    JOptionPane.showMessageDialog(
-                        this,
-                        "Identifiant ou mot de passe incorrect.",
-                        "Erreur de connexion",
-                        JOptionPane.ERROR_MESSAGE
-                    );
+                    JOptionPane.showMessageDialog(this, "Identifiant ou mot de passe incorrect.","Erreur de connexion", JOptionPane.ERROR_MESSAGE);
                 }
             }catch(Exception a){
                 System.out.println("Erreur lors de la récupération du mot de passe: " + a);
@@ -222,10 +215,10 @@ class RegisterWindow extends WindowManager {
         gbc.gridx = 0;
         panel.add(new JLabel("Nom :"), gbc);
 
-        nameField = new JTextField(15);
+        usernameField = new JTextField(15);
 
         gbc.gridx = 1;
-        panel.add(nameField, gbc);
+        panel.add(usernameField, gbc);
 
         // Mot de passe
         gbc.gridy = 2;
@@ -267,7 +260,7 @@ class RegisterWindow extends WindowManager {
         
         registerButton.addActionListener(e -> {
 
-            String username = nameField.getText().trim();
+            String username = usernameField.getText().trim();
 
             char[] password = passwordField.getPassword();
             char[] confirmPassword = confirmPasswordField.getPassword();
