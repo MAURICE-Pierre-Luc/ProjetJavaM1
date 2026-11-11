@@ -15,9 +15,15 @@ import java.util.List;
 public class OffersWindow extends WindowManager {
 
     private final ConDB con = ConDB.getCon();
+    private final int userId;
+    
+    private JPanel offersPanel;
+    private JScrollPane scrollPane;
 
-    public OffersWindow() {
+    public OffersWindow(int userId) {
         super("JobBoard - Offres d'emploi", 800, 600);
+        
+        this.userId = userId;    
 
         // Fenêtre principale
         JPanel mainPanel = new JPanel(new BorderLayout(10, 10));
@@ -40,10 +46,12 @@ public class OffersWindow extends WindowManager {
 
         JButton profileButton = new JButton("Mon profil");
         JButton createButton = new JButton("Créer une offre");
+        JButton refreshButton = new JButton("Actualiser");
         JButton quitButton = new JButton("Quitter");
 
         buttons.add(profileButton);
         buttons.add(createButton);
+        buttons.add(refreshButton);
         buttons.add(quitButton);
 
         header.add(buttons, BorderLayout.EAST);
@@ -54,7 +62,8 @@ public class OffersWindow extends WindowManager {
         // LISTE DES OFFRES
         // =========================
 
-        JPanel offersPanel = new JPanel();
+
+        offersPanel = new JPanel();
         offersPanel.setLayout(
             new BoxLayout(offersPanel, BoxLayout.Y_AXIS)
         );
@@ -63,25 +72,13 @@ public class OffersWindow extends WindowManager {
             new EmptyBorder(10, 0, 10, 0)
         );
 
-        // Fausses offres pour les tests
-        List<Offer> offers = new ArrayList<>();
-        try{
-            offers = con.getOffers();
-        }catch(Exception e){
-            System.out.println("Erreur lors de la récupération des  offres: " + e);
-        }
-        // Affichage des offres
-        for (Offer offer : offers) {
-            JPanel offerCard = createOfferCard(offer);
-
-            offersPanel.add(offerCard);
-            offersPanel.add(Box.createVerticalStrut(12));
-        }
-
-        JScrollPane scrollPane = new JScrollPane(offersPanel);
+        scrollPane = new JScrollPane(offersPanel);
         scrollPane.setBorder(BorderFactory.createEmptyBorder());
 
         mainPanel.add(scrollPane, BorderLayout.CENTER);
+
+        // Chargement initial des offres
+        refreshOffers();
 
         setMainPanel(mainPanel);
 
@@ -96,7 +93,11 @@ public class OffersWindow extends WindowManager {
         });
 
         createButton.addActionListener(e -> {
-            // À implémenter plus tard
+            new CreateOfferWindow(userId).showWindow();
+        });
+        
+        refreshButton.addActionListener(e -> {
+            refreshOffers();
         });
 
         // Quitter l'application
@@ -105,6 +106,54 @@ public class OffersWindow extends WindowManager {
         });
     }
 
+    private void refreshOffers() {
+
+    // On vide la liste actuelle
+    offersPanel.removeAll();
+
+    try {
+        // On récupère les offres depuis PostgreSQL
+        List<Offer> offers = con.getOffers();
+
+        if (offers.isEmpty()) {
+            JLabel emptyLabel = new JLabel(
+                "Aucune offre disponible pour le moment."
+            );
+
+            emptyLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+            offersPanel.add(emptyLabel);
+
+        } else {
+
+            // On reconstruit les cartes
+            for (Offer offer : offers) {
+
+                JPanel offerCard = createOfferCard(offer);
+
+                offersPanel.add(offerCard);
+                offersPanel.add(Box.createVerticalStrut(12));
+            }
+        }
+
+    } catch (Exception e) {
+
+        JOptionPane.showMessageDialog(
+            this,
+            "Impossible de récupérer les offres : " + e.getMessage(),
+            "Erreur",
+            JOptionPane.ERROR_MESSAGE
+        );
+    }
+
+    // Actualisation graphique
+    offersPanel.revalidate();
+    offersPanel.repaint();
+
+    // Retour en haut de la liste
+    scrollPane.getVerticalScrollBar().setValue(0);
+    }
+    
+    
     // Crée l'affichage d'une offre
     private JPanel createOfferCard(Offer offer) {
 

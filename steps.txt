@@ -1,0 +1,10 @@
+sudo systemctl start postgresql
+sudo systemctl status postgresql
+sudo -u postgres psql
+
+
+To edit the database scheme, go the root of SchemaBDD.sql and execute:
+
+sudo -u postgres psql -d projetjava -f SchemaBDD.sql
+
+(According to your user and db name)

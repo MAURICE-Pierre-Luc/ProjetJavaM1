@@ -154,10 +154,21 @@ class LoginWindow extends WindowManager {
             try{
                 String userPassword = con.getPassword(username);
 
-                if(password.equals(userPassword)){
+                if (password.equals(userPassword)) {
 
-                    new OffersWindow().showWindow();
-                    closeWindow();
+                    int userId = con.getUserId(username);
+
+                    if (userId != -1) {
+                        new OffersWindow(userId).showWindow();
+                        closeWindow();
+                    } else {
+                        JOptionPane.showMessageDialog(
+                            this,
+                            "Impossible de retrouver votre compte.",
+                            "Erreur",
+                            JOptionPane.ERROR_MESSAGE
+                        );
+                    }
 
                 } else {
                     JOptionPane.showMessageDialog(this, "Identifiant ou mot de passe incorrect.","Erreur de connexion", JOptionPane.ERROR_MESSAGE);

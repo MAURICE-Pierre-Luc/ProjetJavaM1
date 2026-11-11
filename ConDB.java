@@ -57,7 +57,8 @@ public class ConDB {
             System.out.println("Utilisateur ajouté.");
         }
     }
-    public void addToTable(String title, String description, String pay, int ownerId) throws SQLException {
+
+    public void addToTable(String title, String description, BigDecimal pay, int ownerId) throws SQLException {
 
         String sql = "INSERT INTO offer (title, description, pay, owner_id) VALUES (?, ?, ?, ?)";
 
@@ -66,15 +67,15 @@ public class ConDB {
 
             requete.setString(1, title);
             requete.setString(2, description);
-            requete.setString(3, pay);
+            requete.setBigDecimal(3, pay);
             requete.setInt(4, ownerId);
 
             requete.executeUpdate();
 
-            System.out.println("Utilisateur ajouté.");
-            
+            System.out.println("Offre ajoutée avec succès.");
         }
     }
+
     public void addToTable(int userId, int offerId) throws SQLException {
 
         String sql = "INSERT INTO interesse (user_id, offer_id) VALUES (?, ?)";
@@ -182,6 +183,29 @@ public class ConDB {
         }
     }
 
+    
+    
+    public int getUserId(String userName) throws SQLException {
+
+        String sql = "SELECT id FROM users WHERE username = ?";
+
+        try (Connection connexion = getConnection();
+             PreparedStatement requete = connexion.prepareStatement(sql)) {
+
+            requete.setString(1, userName);
+
+            try (ResultSet resultat = requete.executeQuery()) {
+
+                if (resultat.next()) {
+                    return resultat.getInt("id");
+                }
+
+                return -1; // Utilisateur introuvable
+            }
+        }
+    }
+
+    
 // Met a jour une offre de la base de donne
     public void updateOffer( int id, String title, String description, BigDecimal pay) throws SQLException {
 
