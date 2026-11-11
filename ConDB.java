@@ -1,5 +1,6 @@
 package com.mycompany.windowmanager;
 
+import io.github.cdimascio.dotenv.Dotenv;
 import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -10,28 +11,34 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ConDB {
+
+    private static ConDB instance;
     
     // Informations de connexion
-    private final String adresse;
-    private final String nomBDD;
-    private final String utilisateur;
-    private final String motDePasse;
+    private static final Dotenv dotenv = Dotenv.load();
+
+    private static final String HOST = dotenv.get("DB_HOST");
+    private static final String PORT = dotenv.get("DB_PORT");
+    private static final String DATABASE = dotenv.get("DB_NAME");
+    private static final String USER = dotenv.get("DB_USER");
+    private static final String PASSWORD = dotenv.get("DB_PASSWORD");
+    private static final String DBTYPE = dotenv.get("DB_TYPE");
+
+    private static final String URL ="jdbc:" + DBTYPE + "://" + HOST + ":" + PORT + "/" + DATABASE;
     
     // Constructeur
-    public ConDB(String adresse, String nomBDD, String utilisateur, String motDePasse) {
-
-        this.adresse = adresse;
-        this.nomBDD = nomBDD;
-        this.utilisateur = utilisateur;
-        this.motDePasse = motDePasse;
+    private ConDB() {}
+    
+    public static ConDB getCon(){
+        if (ConDB.instance == null){
+            ConDB.instance = new ConDB();
+        }
+        
+        return ConDB.instance;
     }
     
-    
-    public Connection getConnection() throws SQLException {
-
-        String url = "jdbc:postgresql://" + adresse + "/" + nomBDD;
-
-        return DriverManager.getConnection(url, utilisateur, motDePasse);
+    public static Connection getConnection() throws SQLException {
+        return DriverManager.getConnection(URL, USER, PASSWORD);
     }
     
 // Ajouts dans la base de donnee
@@ -99,7 +106,7 @@ public class ConDB {
                 int id = resultat.getInt("id");
                 String title = resultat.getString("title");
                 String description = resultat.getString("description");
-                BigDecimal pay = resultat.getBigDecimal("pay");
+                double pay = resultat.getDouble("pay");
                 int ownerId = resultat.getInt("owner_id");
 
                 Offer offre = new Offer(id, pay, title, description, ownerId );
@@ -107,7 +114,9 @@ public class ConDB {
                 offres.add(offre);
                 
             }
-        }   
+        } catch(Exception e){
+            System.out.println("Erreur lors de la récupération des offres: "+ e);
+        }
         return offres;
     }
     public String getPassword(String userName) throws SQLException {
@@ -133,11 +142,7 @@ public class ConDB {
 
         List<Offer> offres = new ArrayList<>();
 
-        String sql = """
-            SELECT id, title, description, pay, owner_id
-            FROM offer
-            WHERE title LIKE ?
-            """;
+        String sql = "SELECT id, title, description, pay, owner_id FROM offer WHERE title LIKE ? ";
 
         try (Connection connexion = getConnection();
              PreparedStatement requete = connexion.prepareStatement(sql)) {
@@ -148,7 +153,7 @@ public class ConDB {
                 while (resultat.next()) {
                     Offer offre = new Offer(
                         resultat.getInt("id"),
-                        resultat.getBigDecimal("pay"),
+                        resultat.getDouble("pay"),
                         resultat.getString("title"),
                         resultat.getString("description"),
                         resultat.getInt("owner_id")
@@ -160,6 +165,21 @@ public class ConDB {
         }
 
         return offres;
+    }
+    
+    public boolean userExists(String username) throws SQLException {
+
+        String sql = "SELECT 1 FROM users WHERE username = ?";
+
+        try (Connection connexion = getConnection();
+             PreparedStatement requete = connexion.prepareStatement(sql)) {
+
+            requete.setString(1, username);
+
+            try (ResultSet resultat = requete.executeQuery()) {
+                return resultat.next();
+            }
+        }
     }
 
 // Met a jour une offre de la base de donne
