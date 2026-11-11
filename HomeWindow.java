@@ -6,6 +6,8 @@ package com.mycompany.windowmanager;
 
 import javax.swing.*;
 import java.awt.*;
+import java.sql.SQLException;
+import java.util.Arrays;
 /**
  *
  * @author katuro
@@ -81,10 +83,6 @@ public class HomeWindow extends WindowManager {
 
 class LoginWindow extends WindowManager {
 
-    // Identifiants de test
-    private static final String TEST_USERNAME = "admin";
-    private static final String TEST_PASSWORD = "1234";
-
     private JTextField usernameField;
     private JPasswordField passwordField;
 
@@ -146,26 +144,33 @@ class LoginWindow extends WindowManager {
 
         setMainPanel(panel);
 
+        ConDB con = ConDB.getCon();
+        
         // Vérification des identifiants
         loginButton.addActionListener(e -> {
             String username = usernameField.getText().trim();
             String password = new String(
                 passwordField.getPassword()
             );
+            
+            try{
+                String userPassword = con.getPassword(username);
 
-            if (username.equals(TEST_USERNAME)
-                    && password.equals(TEST_PASSWORD)) {
+                if(password.equals(userPassword)){
 
-                new OffersWindow().showWindow();
-                closeWindow();
+                    new OffersWindow().showWindow();
+                    closeWindow();
 
-            } else {
-                JOptionPane.showMessageDialog(
-                    this,
-                    "Identifiant ou mot de passe incorrect.",
-                    "Erreur de connexion",
-                    JOptionPane.ERROR_MESSAGE
-                );
+                } else {
+                    JOptionPane.showMessageDialog(
+                        this,
+                        "Identifiant ou mot de passe incorrect.",
+                        "Erreur de connexion",
+                        JOptionPane.ERROR_MESSAGE
+                    );
+                }
+            }catch(Exception a){
+                System.out.println("Erreur lors de la récupération du mot de passe: " + a);
             }
 
         });
@@ -187,6 +192,7 @@ class RegisterWindow extends WindowManager {
     private JTextField usernameField;
     private JPasswordField passwordField;
     private JPasswordField confirmPasswordField;
+    private final ConDB con = ConDB.getCon();
 
     public RegisterWindow() {
         super("JobBoard - Inscription", 450, 350);
@@ -258,6 +264,36 @@ class RegisterWindow extends WindowManager {
         setMainPanel(panel);
 
         // Le bouton d'inscription ne fait rien pour le moment.
+        
+        registerButton.addActionListener(e -> {
+
+            String username = nameField.getText().trim();
+
+            char[] password = passwordField.getPassword();
+            char[] confirmPassword = confirmPasswordField.getPassword();
+
+            // Vérification des mots de passe
+            if (!Arrays.equals(password, confirmPassword)) {
+                JOptionPane.showMessageDialog(this, "Les mots de passe ne correspondent pas.", "Erreur", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            try {
+                // Vérification de l'existence du compte
+                if (con.userExists(username)) {
+                    JOptionPane.showMessageDialog(this, "Ce nom d'utilisateur est déjà utilisé.", "Erreur", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
+                // Ajout de l'utilisateur
+                con.addToTable(username, new String(password));
+
+                JOptionPane.showMessageDialog(this, "Votre compte a été créé avec succès !", "Inscription", JOptionPane.INFORMATION_MESSAGE);
+
+            } catch (SQLException ex) {
+                JOptionPane.showMessageDialog(this, "Erreur lors de l'inscription : " + ex.getMessage(), "Erreur", JOptionPane.ERROR_MESSAGE);
+            }
+        });
 
         backButton.addActionListener(e -> {
             new HomeWindow().showWindow();
@@ -265,3 +301,4 @@ class RegisterWindow extends WindowManager {
         });
     }
 }
+
