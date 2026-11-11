@@ -6,7 +6,6 @@ package com.mycompany.windowmanager;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,6 +14,7 @@ import java.util.List;
 
 public class OffersWindow extends WindowManager {
 
+    private final ConDB con = ConDB.getCon();
 
     public OffersWindow() {
         super("JobBoard - Offres d'emploi", 800, 600);
@@ -65,27 +65,11 @@ public class OffersWindow extends WindowManager {
 
         // Fausses offres pour les tests
         List<Offer> offers = new ArrayList<>();
-
-        offers.add(new Offer(
-            1,
-            new BigDecimal(32000),
-            "Développeur Java Junior",
-            "Nous recherchons un développeur Java "
-            + "pour rejoindre notre équipe et participer "
-            + "au développement de nos applications.",
-            1
-        ));
-
-        offers.add(new Offer(
-            2,
-            new BigDecimal(28000),
-            "Technicien informatique",
-            "Assurer la maintenance du parc informatique, "
-            + "assister les utilisateurs et participer "
-            + "à la gestion des systèmes.",
-            2
-        ));
-
+        try{
+            offers = con.getOffers();
+        }catch(Exception e){
+            System.out.println("Erreur lors de la récupération des  offres: " + e);
+        }
         // Affichage des offres
         for (Offer offer : offers) {
             JPanel offerCard = createOfferCard(offer);
@@ -143,7 +127,7 @@ public class OffersWindow extends WindowManager {
 
         // Rémunération
         JLabel salaryLabel = new JLabel(
-            String.format("%,d € / an", offer.remuneration)
+            String.format("%.2f € / an", offer.remuneration)
                 .replace(',', ' ')
         );
 
